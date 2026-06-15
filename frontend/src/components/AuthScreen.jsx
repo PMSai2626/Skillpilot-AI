@@ -140,6 +140,27 @@ export default function AuthScreen({ onLogin }) {
   const [fieldError, setFieldError] = useState({ email: '', password: '' });
   const [message, setMessage] = useState('');
   const [devCode, setDevCode] = useState(null);
+  const [serverWaking, setServerWaking] = useState(false);
+
+  // Retry a fetch up to `maxRetries` times when server is cold-starting
+  const fetchWithRetry = async (url, opts, maxRetries = 3) => {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await fetch(url, opts);
+        setServerWaking(false);
+        return res;
+      } catch (err) {
+        const isColdStart = err.message === 'Failed to fetch' || err.name === 'TypeError';
+        if (isColdStart && attempt < maxRetries) {
+          setServerWaking(true);
+          await new Promise(r => setTimeout(r, 5000)); // wait 5s before retry
+        } else {
+          setServerWaking(false);
+          throw err;
+        }
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -151,7 +172,7 @@ export default function AuthScreen({ onLogin }) {
 
     if (mode === 'forgot') {
       try {
-        const res = await fetch('/api/auth/forgot-password', {
+        const res = await fetchWithRetry('/api/auth/forgot-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: form.email }),
@@ -177,7 +198,7 @@ export default function AuthScreen({ onLogin }) {
 
     if (mode === 'reset') {
       try {
-        const res = await fetch('/api/auth/reset-password', {
+        const res = await fetchWithRetry('/api/auth/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: form.email, code: form.code, newPassword: form.password }),
@@ -200,7 +221,7 @@ export default function AuthScreen({ onLogin }) {
       : { name: form.name, email: form.email, password: form.password };
 
     try {
-      const res = await fetch(endpoint, {
+      const res = await fetchWithRetry(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -389,7 +410,22 @@ export default function AuthScreen({ onLogin }) {
               </div>
             )}
 
-            {error && <div className="auth-error">{error}</div>}
+            {serverWaking && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.65rem',
+                padding: '0.7rem 0.9rem',
+                background: 'rgba(245,158,11,0.08)',
+                border: '1px solid rgba(245,158,11,0.25)',
+                borderRadius: '10px',
+                color: '#fbbf24',
+                fontSize: '0.83rem',
+                animation: 'auth-fade-up 0.3s ease',
+              }}>
+                <span className="loader-sm" style={{ borderColor: 'rgba(245,158,11,0.3)', borderTopColor: '#f59e0b' }} />
+                Server is starting up… please wait (Render free tier cold start)
+              </div>
+            )}
+            {error && !serverWaking && <div className="auth-error">{error}</div>}
             {message && (
               <div style={{
                 padding: '0.65rem 0.9rem',

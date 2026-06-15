@@ -819,3 +819,13 @@ def get_cohort_stats(db: Session = Depends(get_db)):
             "aboveEighty": above_eighty
         }
     }
+
+
+# ----------------- HEALTH CHECK -----------------
+
+@app.get("/api/health")
+def health_check():
+    """Lightweight ping endpoint used by the frontend to pre-warm the server
+    on app load (Render free tier spins down after 15 min of inactivity)."""
+    return {"status": "ok", "service": "SkillPilot AI Backend"}
+
