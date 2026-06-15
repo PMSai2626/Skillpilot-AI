@@ -1,0 +1,137 @@
+[
+  {
+    "roleId": "frontend_developer",
+    "name": "Frontend Developer",
+    "description": "Responsible for implementing visual elements that users see and interact with in a web application.",
+    "requiredSkills": ["HTML", "CSS", "JavaScript", "Git"],
+    "preferredSkills": ["React", "TypeScript", "Next.js", "Redux", "TailwindCSS", "Webpack", "Sass"],
+    "learningResources": {
+      "React": {
+        "name": "React Documentation & Quickstart Guide",
+        "url": "https://react.dev/learn"
+      },
+      "TypeScript": {
+        "name": "TypeScript for Beginners",
+        "url": "https://www.typescriptlang.org/docs/"
+      },
+      "TailwindCSS": {
+        "name": "Tailwind CSS Tutorial",
+        "url": "https://tailwindcss.com/docs/installation"
+      },
+      "JavaScript": {
+        "name": "MDN JavaScript Guide",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+      }
+    }
+  },
+  {
+    "roleId": "backend_developer",
+    "name": "Backend Developer",
+    "description": "Focuses on databases, scripting, and the architecture of websites, handling server-side application logic.",
+    "requiredSkills": ["Python", "Node.js", "SQL", "Git", "REST APIs"],
+    "preferredSkills": ["Express", "FastAPI", "PostgreSQL", "MongoDB", "Docker", "Redis", "GraphQL", "AWS"],
+    "learningResources": {
+      "Node.js": {
+        "name": "Node.js Introduction Course",
+        "url": "https://nodejs.org/en/docs/guides/getting-started-guide"
+      },
+      "FastAPI": {
+        "name": "FastAPI Web Framework Docs",
+        "url": "https://fastapi.tiangolo.com/tutorial/"
+      },
+      "MongoDB": {
+        "name": "MongoDB University Basics",
+        "url": "https://learn.mongodb.com/"
+      },
+      "PostgreSQL": {
+        "name": "PostgreSQL Tutorial for Beginners",
+        "url": "https://www.postgresqltutorial.com/"
+      }
+    }
+  },
+  {
+    "roleId": "fullstack_developer",
+    "name": "Full-Stack Developer",
+    "description": "Engineers who can work on both the front-end and back-end portions of an application.",
+    "requiredSkills": ["HTML", "CSS", "JavaScript", "Node.js", "SQL", "Git", "REST APIs"],
+    "preferredSkills": ["React", "Express", "MongoDB", "PostgreSQL", "TypeScript", "Docker", "AWS"],
+    "learningResources": {
+      "React": {
+        "name": "Full Stack Open - React & Node.js Guide",
+        "url": "https://fullstackopen.com/en/"
+      },
+      "Docker": {
+        "name": "Docker Containerization Guide",
+        "url": "https://docs.docker.com/get-started/"
+      }
+    }
+  },
+  {
+    "roleId": "qa_engineer",
+    "name": "QA / Test Automation Engineer",
+    "description": "Designs and runs tests to find bugs and ensure software quality and reliability.",
+    "requiredSkills": ["JavaScript", "Python", "Git", "Manual Testing"],
+    "preferredSkills": ["Selenium", "Playwright", "Cypress", "Jest", "Postman", "CI/CD", "JUnit"],
+    "learningResources": {
+      "Playwright": {
+        "name": "Playwright Test Automation Introduction",
+        "url": "https://playwright.dev/docs/intro"
+      },
+      "Postman": {
+        "name": "API Testing with Postman",
+        "url": "https://learning.postman.com/docs/getting-started/introduction/"
+      }
+    }
+  },
+  {
+    "roleId": "data_analyst",
+    "name": "Data Analyst",
+    "description": "Translates numbers and data into plain English, helping companies make better business decisions.",
+    "requiredSkills": ["Python", "SQL", "Excel", "Data Visualization"],
+    "preferredSkills": ["Pandas", "NumPy", "Tableau", "PowerBI", "R", "Jupyter", "Statistics"],
+    "learningResources": {
+      "Pandas": {
+        "name": "Pandas Data Wrangling Guide",
+        "url": "https://pandas.pydata.org/docs/user_guide/10min.html"
+      },
+      "SQL": {
+        "name": "SQL for Data Analysis",
+        "url": "https://www.kaggle.com/learn/intro-to-sql"
+      }
+    }
+  },
+  {
+    "roleId": "devops_engineer",
+    "name": "DevOps Engineer",
+    "description": "Bridges the gap between developers and operations teams to automate and speed up software deployments.",
+    "requiredSkills": ["Linux", "Git", "Bash", "Networking Basics"],
+    "preferredSkills": ["Docker", "Kubernetes", "AWS", "GitHub Actions", "Terraform", "CI/CD", "Nginx"],
+    "learningResources": {
+      "Kubernetes": {
+        "name": "Kubernetes Basics Hands-on Guide",
+        "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/"
+      },
+      "Terraform": {
+        "name": "Terraform Infrastructure as Code Docs",
+        "url": "https://developer.hashicorp.com/terraform/tutorials"
+      }
+    }
+  },
+  {
+    "roleId": "ml_engineer",
+    "name": "Machine Learning Engineer",
+    "description": "Creates algorithms that can learn from and make decisions or predictions on data.",
+    "requiredSkills": ["Python", "SQL", "Mathematics", "Machine Learning Basics"],
+    "preferredSkills": ["PyTorch", "TensorFlow", "Scikit-Learn", "NumPy", "Pandas", "Hugging Face", "MLOps", "CUDA"],
+    "learningResources": {
+      "PyTorch": {
+        "name": "PyTorch Deep Learning Fundamentals",
+        "url": "https://pytorch.org/tutorials/"
+      },
+      "Scikit-Learn": {
+        "name": "Scikit-Learn Machine Learning Guide",
+        "url": "https://scikit-learn.org/stable/tutorial/"
+      }
+    }
+  }
+]
