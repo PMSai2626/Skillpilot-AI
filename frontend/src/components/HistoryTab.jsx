@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // ─── Score Progression Chart ──────────────────────────────────────────────────
 function ScoreProgressionChart({ data }) {
@@ -149,18 +149,96 @@ function ScoreProgressionChart({ data }) {
 }
 
 // ─── Diff Viewer ──────────────────────────────────────────────────────────────
+// LCS Aligner for line-by-line alignment
+function alignLines(linesA, linesB) {
+  const n = linesA.length;
+  const m = linesB.length;
+  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      if (linesA[i - 1].trim().toLowerCase() === linesB[j - 1].trim().toLowerCase()) {
+        dp[i][j] = dp[i - 1][j - 1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+  }
+
+  let i = n, j = m;
+  const alignedA = [];
+  const alignedB = [];
+
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && linesA[i - 1].trim().toLowerCase() === linesB[j - 1].trim().toLowerCase()) {
+      alignedA.unshift({ text: linesA[i - 1], type: 'normal' });
+      alignedB.unshift({ text: linesB[j - 1], type: 'normal' });
+      i--;
+      j--;
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      alignedA.unshift({ text: '', type: 'empty' });
+      alignedB.unshift({ text: linesB[j - 1], type: 'added' });
+      j--;
+    } else {
+      alignedA.unshift({ text: linesA[i - 1], type: 'removed' });
+      alignedB.unshift({ text: '', type: 'empty' });
+      i--;
+    }
+  }
+
+  return { alignedA, alignedB };
+}
+
 function DiffViewer({ textA, textB, labelA, labelB, scoreA, scoreB }) {
+  const leftRef = useRef(null);
+  const rightRef = useRef(null);
+  const activeScroll = useRef(null);
+
   const linesA = (textA || '').split('\n').filter(l => l.trim());
   const linesB = (textB || '').split('\n').filter(l => l.trim());
-  const setA = new Set(linesA.map(l => l.trim().toLowerCase()));
-  const setB = new Set(linesB.map(l => l.trim().toLowerCase()));
+
+  const { alignedA, alignedB } = alignLines(linesA, linesB);
 
   const scoreCls = (s) => s >= 80 ? 'score-high' : s >= 60 ? 'score-mid' : 'score-low';
 
-  const renderLines = (lines, otherSet, side) =>
-    lines.slice(0, 60).map((line, i) => {
-      const key = line.trim().toLowerCase();
-      const isNew = !otherSet.has(key) && line.trim();
+  const handleScroll = (source, target, identifier) => {
+    return () => {
+      if (!activeScroll.current || activeScroll.current === identifier) {
+        activeScroll.current = identifier;
+        if (target.current && source.current) {
+          target.current.scrollTop = source.current.scrollTop;
+        }
+        clearTimeout(activeScroll.timeout);
+        activeScroll.timeout = setTimeout(() => {
+          activeScroll.current = null;
+        }, 100);
+      }
+    };
+  };
+
+  const renderLines = (alignedLines, side) =>
+    alignedLines.map((lineObj, i) => {
+      const isNew = lineObj.type === 'added' || lineObj.type === 'removed';
+      const isEmpty = lineObj.type === 'empty';
+      
+      let textColor = 'var(--text-sub)';
+      let bgColor = 'transparent';
+      let borderLeftColor = '3px solid transparent';
+
+      if (lineObj.type === 'added') {
+        textColor = 'var(--success)';
+        bgColor = 'rgba(0,223,216,0.07)';
+        borderLeftColor = '3px solid var(--accent-cyan)';
+      } else if (lineObj.type === 'removed') {
+        textColor = 'var(--danger)';
+        bgColor = 'rgba(255,68,68,0.07)';
+        borderLeftColor = '3px solid var(--danger)';
+      } else if (isEmpty) {
+        textColor = 'transparent';
+        bgColor = 'rgba(255,255,255,0.01)';
+        borderLeftColor = '3px solid transparent';
+      }
+
       return (
         <div key={i} style={{
           padding: '0.22rem 0.6rem',
@@ -168,12 +246,13 @@ function DiffViewer({ textA, textB, labelA, labelB, scoreA, scoreB }) {
           borderRadius: '4px',
           fontSize: '0.8rem',
           lineHeight: 1.55,
-          color: isNew ? (side === 'right' ? 'var(--success)' : 'var(--danger)') : 'var(--text-sub)',
-          background: isNew ? (side === 'right' ? 'rgba(0,223,216,0.07)' : 'rgba(255,68,68,0.07)') : 'transparent',
-          borderLeft: isNew ? `3px solid ${side === 'right' ? 'var(--accent-cyan)' : 'var(--danger)'}` : '3px solid transparent',
+          color: textColor,
+          background: bgColor,
+          borderLeft: borderLeftColor,
           wordBreak: 'break-word',
+          minHeight: '1.55rem', // ensures empty lines match the height of text lines
         }}>
-          {line}
+          {isEmpty ? '\u00a0' : lineObj.text}
         </div>
       );
     });
@@ -188,8 +267,12 @@ function DiffViewer({ textA, textB, labelA, labelB, scoreA, scoreB }) {
           </div>
           <div className={`score-pill ${scoreCls(scoreA)}`}>{scoreA}</div>
         </div>
-        <div className="hist-diff-body">
-          {textA ? renderLines(linesA, setB, 'left') : <div className="hist-diff-empty">No text available.</div>}
+        <div 
+          ref={leftRef}
+          onScroll={handleScroll(leftRef, rightRef, 'left')}
+          className="hist-diff-body"
+        >
+          {textA ? renderLines(alignedA, 'left') : <div className="hist-diff-empty">No text available.</div>}
         </div>
       </div>
 
@@ -201,8 +284,12 @@ function DiffViewer({ textA, textB, labelA, labelB, scoreA, scoreB }) {
           </div>
           <div className={`score-pill ${scoreCls(scoreB)}`}>{scoreB}</div>
         </div>
-        <div className="hist-diff-body">
-          {textB ? renderLines(linesB, setA, 'right') : <div className="hist-diff-empty">No text available.</div>}
+        <div 
+          ref={rightRef}
+          onScroll={handleScroll(rightRef, leftRef, 'right')}
+          className="hist-diff-body"
+        >
+          {textB ? renderLines(alignedB, 'right') : <div className="hist-diff-empty">No text available.</div>}
         </div>
       </div>
     </div>

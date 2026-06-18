@@ -94,8 +94,8 @@ class ChangePasswordPayload(BaseModel):
 
 @app.post("/api/auth/register")
 def register(payload: RegisterPayload, db: Session = Depends(get_db)):
-    name = payload.name
-    email = payload.email
+    name = payload.name.strip() if payload.name else ""
+    email = payload.email.strip().lower() if payload.email else ""
     password = payload.password
     
     if not name or not email or not password:
@@ -127,7 +127,7 @@ def register(payload: RegisterPayload, db: Session = Depends(get_db)):
 
 @app.post("/api/auth/login")
 def login(payload: LoginPayload, db: Session = Depends(get_db)):
-    email = payload.email
+    email = payload.email.strip().lower() if payload.email else ""
     password = payload.password
     
     if not email or not password:
@@ -210,7 +210,7 @@ def send_reset_email(to_email: str, code: str) -> bool:
 
 @app.post("/api/auth/forgot-password")
 def forgot_password(payload: ForgotPasswordPayload, db: Session = Depends(get_db)):
-    email = payload.email
+    email = payload.email.strip().lower() if payload.email else ""
     if not email:
         raise HTTPException(status_code=400, detail="Email is required")
 
@@ -245,8 +245,8 @@ def forgot_password(payload: ForgotPasswordPayload, db: Session = Depends(get_db
 
 @app.post("/api/auth/reset-password")
 def reset_password(payload: ResetPasswordPayload, db: Session = Depends(get_db)):
-    email = payload.email
-    code = payload.code
+    email = payload.email.strip().lower() if payload.email else ""
+    code = payload.code.strip() if payload.code else ""
     new_password = payload.newPassword
     
     if not email or not code or not new_password:
@@ -613,11 +613,13 @@ async def upload_resume(
         analysis_results = parse_and_score(extracted_text)
         logger.info(f"Analysis complete. Score: {analysis_results['overallScore']}")
         
-        # Verify user exists, create if needed
+        # Verify user exists
         user_exists = db.query(User).filter(User.id == userId).first()
         if not user_exists:
-            logger.warning(f"User {userId} not found, using user 1")
-            userId = 1
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User session is invalid. Please log in again."
+            )
         
         # Write Resume entry
         new_resume = Resume(
@@ -755,6 +757,12 @@ def apply_suggestion(id: int, payload: SuggestionPayload, db: Session = Depends(
 
 @app.get("/api/users/{userId}/history")
 def get_user_history(userId: int, db: Session = Depends(get_db)):
+    user_exists = db.query(User).filter(User.id == userId).first()
+    if not user_exists:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User session is invalid. Please log in again."
+        )
     versions = db.query(Version).join(Resume, Version.resume_id == Resume.id).filter(Resume.user_id == userId).all()
     history = []
     

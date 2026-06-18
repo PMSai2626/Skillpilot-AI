@@ -86,6 +86,10 @@ export default function App() {
     if (!user) return;
     try {
       const res = await fetch(`/api/users/${user.id}/history`);
+      if (res.status === 401 || res.status === 404) {
+        handleLogout();
+        return;
+      }
       if (res.ok) setHistory(await res.json());
     } catch (err) {
       console.error('History fetch failed:', err);
@@ -117,6 +121,11 @@ export default function App() {
 
     try {
       const response = await fetch('/api/resumes/upload', { method: 'POST', body: formData });
+      if (response.status === 401 || response.status === 404) {
+        handleLogout();
+        showToast('Your session has expired. Please log in again.', 'error');
+        return;
+      }
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'Upload failed');
 

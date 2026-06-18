@@ -3113,7 +3113,9 @@ th, td { text-align: left; }
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 10px;
   padding: 0.75rem 1rem;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
+
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   min-width: 120px;
   text-align: center;
