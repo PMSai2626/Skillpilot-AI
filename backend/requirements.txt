@@ -5,3 +5,4 @@ sqlalchemy
 pydantic
 pypdf
 python-dotenv
+psycopg2-binary
